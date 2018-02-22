@@ -8,6 +8,8 @@
     </script>
     <script src="../../libs/dat.GUI.js">
     </script>
+    <script src="../../libs/AsciiEffect.js">
+    </script>
 
     <style>
         body {
@@ -168,7 +170,9 @@
 
             stats.update();
             requestAnimationFrame(renderScene);
-            renderer.render(scene, camera);
+            effect.render(scene, camera);
+
+            //renderer.render(scene, camera);
         }
 
         var scene, camera, renderer, stats, spotLight;
@@ -178,6 +182,9 @@
         var ambientLight, pointLight, directionalLight;
 
         var plane;
+
+        //Feb.08 - Using AsciiEffect - Step 1'. Declare global var(s) needed
+        var effect;
 
         function init() {
             stats = initStats();
@@ -284,7 +291,7 @@
 
             scene.add(red_cube);
 
-            createBuildings();
+            //createBuildings();
 
             //add a plane
             //THREE.PlaneGeometry = function(width, height, widthSegments, heightSegments) {
@@ -333,17 +340,19 @@
             scene.add(ambientLight);
 
             //render all this
+            effect = new THREE.AsciiEffect(renderer);
+            effect.setSize(window.innerWidth, window.innerHeight);
             document.getElementById("my-webgl-output").appendChild(renderer.domElement);
 
             //THREE.Fog(color,near,far);
             //scene.fog=new THREE.Fog(0xffffff,1,80);
 
             //THREE.FogExp2(color,density);
-            scene.fog = new THREE.FogExp2(0xffffff, .009);
+            /*scene.fog = new THREE.FogExp2(0xffffff, .009);
 
             scene.overrideMaterial = new THREE.MeshLambertMaterial({
                 color: 0xFFFFFF
-            });
+            });*/
 
             renderScene();
 
