@@ -164,7 +164,7 @@
             spotLight.lookAt(red_cube);
 
 
-            scene.rotation.set(0, t, 0);
+            //scene.rotation.set(0, t, 0);
 
             stats.update();
             requestAnimationFrame(renderScene);
@@ -184,16 +184,26 @@
 
             //
             controls = new function() {
-                    this.rotationSpeed = 0.01;
-                    this.spotLightHeight = 40;
-                    //Feb05 - exercise
-                    this.dx = .1;
-                    this.dy = 5;
-                    this.dz = .2;
-                    this.numberOfBuildings = 1500;
-                    this.ambientLightColor = "#0c0c0c";
-                }
-                //-----GUI for Control - Add buildings
+                this.rotationSpeed = 0.01;
+                this.spotLightHeight = 40;
+                //Feb05 - exercise
+                this.dx = .1;
+                this.dy = 5;
+                this.dz = .2;
+                this.numberOfBuildings = 1500;
+                this.ambientLightColor = "#0c0c0c";
+                //Feb.12 - new controls for fog
+                this.fogColor = "#FFFFFF";
+                this.fogNear = 0.1;
+                this.fogFar = 100;
+                //Excercise
+                this.fogExp2Color = "#FFFFFF";
+                this.fogExp2Desnsity = 0.009;
+                //Excercise2
+                this.overrideMaterialColor = "#FFFFFF";
+            }
+
+            //-----GUI for Control - Add buildings
             gui = new dat.GUI();
 
             // Feb05 - Using dat.GUI - Step 3'. Connect gui with controls
@@ -207,6 +217,29 @@
             gui.addColor(controls, 'ambientLightColor').onChange((c) => {
                 ambientLight.color = new THREE.Color(c);
             }); //second try with addColor
+            //Feb.12
+            var folderFog = gui.addFolder('Fog Controls');
+            folderFog.addColor(controls, 'fogColor').onChange((c) => {
+                scene.fog.color = new THREE.Color(c);
+            }); //change scene.fog.color directly
+            folderFog.add(controls, 'fogNear', 0, 1).onChange((n) => {
+                scene.fog.near = n;
+            }); //change scene.fog.near directly
+            folderFog.add(controls, 'fogFar', 1, 200).onChange((f) => {
+                scene.fog.far = f;
+            }); //change scene.fog.far directly
+            //Excercise
+            var folderFog2 = gui.addFolder('FogExp2 Controls');
+            folderFog2.addColor(controls, 'fogExp2Color').onChange((c) => {
+                scene.fog.color = new THREE.Color(c);
+            }); //change scene.fog.color directly
+            folderFog2.add(controls, 'fogExp2Desnsity', 0, 0.03).onChange((d) => {
+                scene.fog.density = d;
+            }); //change scene.fog.near directly
+            //Excercise 2
+            gui.addColor(controls, 'overrideMaterialColor').onChange((c) => {
+                scene.overrideMaterial.color = new THREE.Color(c);
+            }); //change overrideMaterial.color directly
 
             //scene
 
@@ -251,7 +284,7 @@
 
             scene.add(red_cube);
 
-            //createBuildings();
+            createBuildings();
 
             //add a plane
             //THREE.PlaneGeometry = function(width, height, widthSegments, heightSegments) {
@@ -276,7 +309,7 @@
 
             scene.add(plane);
 
-            /*spotLight = new THREE.SpotLight(0xFFFFFF);
+            spotLight = new THREE.SpotLight(0xFFFFFF);
             spotLight.position.x = 0;
             spotLight.position.z = 0;
 
@@ -293,7 +326,7 @@
             spotLight2.castShadow = true;
             spotLight2.lookAt(red_cube);
 
-            scene.add(spotLight2);*/
+            scene.add(spotLight2);
 
             //add a ambientLight
             ambientLight = new THREE.AmbientLight(0x0c0c0c);
@@ -301,6 +334,17 @@
 
             //render all this
             document.getElementById("my-webgl-output").appendChild(renderer.domElement);
+
+            //THREE.Fog(color,near,far);
+            //scene.fog=new THREE.Fog(0xffffff,1,80);
+
+            //THREE.FogExp2(color,density);
+            scene.fog = new THREE.FogExp2(0xffffff, .009);
+
+            scene.overrideMaterial = new THREE.MeshLambertMaterial({
+                color: 0xFFFFFF
+            });
+
             renderScene();
 
         }
