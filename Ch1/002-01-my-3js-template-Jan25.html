@@ -34,13 +34,6 @@
             return angle_in_deg / 180 * Math.PI;
         }
 
-        function initStats() {
-            var stats = new Stats();
-            stats.setMode(0); // 0 => fps, 1=> ms / frame
-            document.getElementById("my-stats-output").appendChild(stats.domElement);
-            return stats;
-        }
-
         function createCube(dx, dy, dz, col, wf, px, py, pz, sx, sy, sz, rx, ry, rz) {
 
             // create a cube
@@ -143,6 +136,14 @@
             }
         }
 
+
+        function initStats() {
+            var stats = new Stats();
+            stats.setMode(0); // 0 => fps, 1=> ms / frame
+            document.getElementById("my-stats-output").appendChild(stats.domElement);
+            return stats;
+        }
+
         function renderScene() {
 
             frameCounter += 1;
@@ -174,6 +175,7 @@
         var frameCounter = 0;
         var controls, gui;
         var red_cube;
+        var ambientLight, pointLight, directionalLight;
 
         var plane;
 
@@ -189,6 +191,7 @@
                     this.dy = 5;
                     this.dz = .2;
                     this.numberOfBuildings = 1500;
+                    this.ambientLightColor = "#0c0c0c";
                 }
                 //-----GUI for Control - Add buildings
             gui = new dat.GUI();
@@ -201,6 +204,9 @@
             gui.add(controls, 'dy', 0, 15);
             gui.add(controls, 'dz', 0, 5);
             gui.add(controls, 'numberOfBuildings', 0, 2000);
+            gui.addColor(controls, 'ambientLightColor').onChange((c) => {
+                ambientLight.color = new THREE.Color(c);
+            }); //second try with addColor
 
             //scene
 
@@ -270,7 +276,7 @@
 
             scene.add(plane);
 
-            spotLight = new THREE.SpotLight(0xFFFFFF);
+            /*spotLight = new THREE.SpotLight(0xFFFFFF);
             spotLight.position.x = 0;
             spotLight.position.z = 0;
 
@@ -287,14 +293,11 @@
             spotLight2.castShadow = true;
             spotLight2.lookAt(red_cube);
 
-            scene.add(spotLight2);
+            scene.add(spotLight2);*/
 
-
-            //renderer
-            var renderer = new THREE.WebGLRenderer();
-            renderer.setClearColor();
-            renderer.setClearColor(new THREE.Color(0xBBFFBB));
-            renderer.setSize(800, 600);
+            //add a ambientLight
+            ambientLight = new THREE.AmbientLight(0x0c0c0c);
+            scene.add(ambientLight);
 
             //render all this
             document.getElementById("my-webgl-output").appendChild(renderer.domElement);
