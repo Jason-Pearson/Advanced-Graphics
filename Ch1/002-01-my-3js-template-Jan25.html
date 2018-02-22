@@ -17,6 +17,99 @@
     </div>
 
     <script>
+        function createCube1() {
+
+            // create a cube
+            var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            var cubeMaterial = new THREE.MeshBasicMaterial({
+                color: 0x0000ff,
+                wireframe: true
+            });
+            var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+            // position the cube
+            cube.position.x = -4;
+            cube.position.y = 3;
+            cube.position.z = 0;
+            cube.scale.x = 5;
+            cube.rotation.z = -Deg2Rad(30); // 30 deg
+
+            return cube;
+
+        }
+        //Turn Degrees into Radius
+        function Deg2Rad(angle_in_deg) {
+            return angle_in_deg / 180 * Math.PI;
+        }
+
+        function createCube(dx, dy, dz, col, wf, px, py, pz, sx, sy, sz, rx, ry, rz) {
+
+            // create a cube
+            var cubeGeometry = new THREE.BoxGeometry(dx || 1, dy || 1, dz || 1);
+            var cubeMaterial = new THREE.MeshBasicMaterial({
+                color: col || 0xFFFFFF,
+                wireframe: wf || false
+            });
+            var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+            // position the cube
+            cube.position.x = px || 0;
+            cube.position.y = py || 0;
+            cube.position.z = pz || 0;
+
+            cube.scale.x = sx || 1;
+            cube.scale.y = sy || 1;
+            cube.scale.z = sz || 1;
+
+            cube.rotation.x = rx || 0;
+            cube.rotation.y = ry || 0;
+            cube.rotation.z = rz || 0;
+
+
+            return cube;
+
+        }
+
+        function createSphere1() {
+            // create a sphere
+            var sphereGeometry = new THREE.SphereGeometry(4, 10, 5);
+            //var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
+            var sphereMaterial = new THREE.MeshBasicMaterial();
+            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            // position the sphere
+            sphere.position.x = 20;
+            sphere.position.y = 4;
+            sphere.position.z = 2;
+            sphere.scale.x = 3;
+            sphere.scale.z = 3;
+
+            return sphere;
+        }
+
+        function createSphere(r, nw, nh, col, wf, px, py, pz, sx, sy, sz) {
+            // r - radius
+            // nw - number of width elements
+            // nh - number of height elements
+            // col- color
+            // wf - wireframe? (true/false)
+            // create a sphere
+            var sphereGeometry = new THREE.SphereGeometry(r, nw, nh);
+            var sphereMaterial = new THREE.MeshBasicMaterial({
+                color: col || 0xFFFFFF,
+                wireframe: wf || false
+            });
+            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            // position the sphere
+            sphere.position.x = px || 0;
+            sphere.position.y = py || 0;
+            sphere.position.z = pz || 0;
+            sphere.scale.x = sx || 1;
+            sphere.scale.x = sy || 1;
+            sphere.scale.z = sz || 1;
+
+            return sphere;
+        }
+
         function init() {
             //scene
             var scene = new THREE.Scene();
@@ -34,28 +127,58 @@
             scene.add(axes); //add to scene after creation
 
             // create a sphere
-            var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
-            var sphereMaterial = new THREE.MeshBasicMaterial({
-                color: 0x7777ff,
-                wireframe: false
-            });
-            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            //scene.add(sphere);
+            //-----create 10 objects (sphere/cube) of randomely generated positions
+            for (var i = 0; i < 10; i++) {
+                var r = 0.1 + Math.random() * 2;
+                var px = -10 + Math.random() * 20;
+                var py = -5 + Math.random() * 10;
+                var pz = -10 + Math.random() * 20;
 
-            // position the sphere
-            sphere.position.x = 20;
-            sphere.position.y = 4;
-            sphere.position.z = 2;
+                var sx = .5 + Math.random() * 3.5;
+                var sy = .5 + Math.random() * 3.5;
+                var sz = .5 + Math.random() * 3.5;
+                var sphere = createSphere(r, 15, 15, 0xFF0000, false, px, py, pz, sx, sy, sz);
+                scene.add(sphere);
 
-            // add the sphere to the scene
-            scene.add(sphere);
+            }
+
+            // add the cube to the scene
+            //var cube = createCube1();
+            //scene.add(cube);
+
+            for (var i = 0; i < 15; i++) {
+                var dx = 0.1 + Math.random() * 20;
+                var dy = 0.1 + Math.random() * 2;
+                var dz = 0.1 + Math.random() * 2;
+
+                var px = -10 + Math.random() * 20;
+                var py = -5 + Math.random() * 10;
+                var pz = -10 + Math.random() * 20;
+
+                var sx = .5 + Math.random() * 3.5;
+                var sy = .5 + Math.random() * 3.5;
+                var sz = .5 + Math.random() * 3.5;
+
+                var rx = Math.random() * Deg2Rad(45);
+                var ry = Math.random() * Deg2Rad(45);
+                var rz = Math.random() * Deg2Rad(45);
+
+
+                var cube = createCube(dx, dy, dz, 0x0000FF, false, px, py, pz, sx, sy, sz, rx, ry, rz);
+                scene.add(cube);
+
+            }
+
 
             //renderer
             var renderer = new THREE.WebGLRenderer();
             renderer.setClearColor();
-            renderer.setClearColor(new THREE.Color(0xEEFFEE));
-            renderer.setSize(640, 480);
+            renderer.setClearColor(new THREE.Color(0xBBFFBB));
+            renderer.setSize(800, 600);
 
-            document.getElementById("my-webgl-output").appendChild(renderer.domElement); //output render as html elements
+            //render all this
+            document.getElementById("my-webgl-output").appendChild(renderer.domElement);
             renderer.render(scene, camera);
 
         }
