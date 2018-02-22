@@ -4,10 +4,19 @@
     <title> Ch01 - 01 - My 3JS Template </title>
     <script src="../../libs/three.js">
     </script>
+    <script src="../../libs/stats.js">
+    </script>
+
     <style>
         body {
             margin: 0;
             overflow: hidden;
+        }
+        
+        .stats {
+            position: absolute;
+            left: 0px;
+            top: 0px;
         }
     </style>
 </head>
@@ -15,31 +24,19 @@
 <body>
     <div id="my-webgl-output">
     </div>
-
+    <div id="my-stats-output">
+    </div>
     <script>
-        function createCube1() {
-
-            // create a cube
-            var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-            var cubeMaterial = new THREE.MeshBasicMaterial({
-                color: 0x0000ff,
-                wireframe: true
-            });
-            var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
-            // position the cube
-            cube.position.x = -4;
-            cube.position.y = 3;
-            cube.position.z = 0;
-            cube.scale.x = 5;
-            cube.rotation.z = -Deg2Rad(30); // 30 deg
-
-            return cube;
-
-        }
         //Turn Degrees into Radius
         function Deg2Rad(angle_in_deg) {
             return angle_in_deg / 180 * Math.PI;
+        }
+
+        function initStats() {
+            var stats = new Stats();
+            stats.setMode(0); // 0 => fps, 1=> ms / frame
+            document.getElementById("my-stats-output").appendChild(stats.domElement);
+            return stats;
         }
 
         function createCube(dx, dy, dz, col, wf, px, py, pz, sx, sy, sz, rx, ry, rz) {
@@ -70,20 +67,33 @@
 
         }
 
-        function createSphere1() {
-            // create a sphere
-            var sphereGeometry = new THREE.SphereGeometry(4, 10, 5);
-            //var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
-            var sphereMaterial = new THREE.MeshBasicMaterial();
-            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-            // position the sphere
-            sphere.position.x = 20;
-            sphere.position.y = 4;
-            sphere.position.z = 2;
-            sphere.scale.x = 3;
-            sphere.scale.z = 3;
+        function createCubeMLM(dx, dy, dz, col, wf, px, py, pz, sx, sy, sz, rx, ry, rz) {
+            //MeshLambertMaterial
+            //rotations are accepted in degrees 
+            // create a cube
+            var cubeGeometry = new THREE.BoxGeometry(dx || 1, dy || 1, dz || 1);
+            var cubeMaterial = new THREE.MeshLambertMaterial({
+                color: col || 0xFFFFFF,
+                wireframe: wf || false
+            });
+            var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
-            return sphere;
+            // position the cube
+            cube.position.x = px || 0;
+            cube.position.y = py || 0;
+            cube.position.z = pz || 0;
+
+            cube.scale.x = sx || 1;
+            cube.scale.y = sy || 1;
+            cube.scale.z = sz || 1;
+
+            cube.rotation.x = Deg2Rad(rx);
+            cube.rotation.y = Deg2Rad(ry);
+            cube.rotation.z = Deg2Rad(rz);
+
+
+            return cube;
+
         }
 
         function createSphere(r, nw, nh, col, wf, px, py, pz, sx, sy, sz) {
@@ -110,12 +120,33 @@
             return sphere;
         }
 
+        var scene, camera, renderer, stats, spotLight;
+        var frameCounter = 0;
+
+        function renderScene() {
+            frameCounter += 1;
+            var t = frameCounter * 0.01;
+            console.log(t);
+
+            var x = spotLight.position.x;
+            var y = spotLight.position.y;
+            var z = spotLight.position.z;
+            spotLight.position.set(x * Math.sin(t) - 10, 40, z * Math.cos(t) - 10)
+            scene.rotation.set(0, t, 0);
+
+            stats.update();
+            requestAnimationFrame(renderScene);
+            renderer.render(scene, camera);
+        }
+
         function init() {
+            stats = initStats();
+
             //scene
-            var scene = new THREE.Scene();
+            scene = new THREE.Scene();
 
             //camera
-            var camera = new THREE.PerspectiveCamera(50, 4 / 3, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(50, 4 / 3, 0.1, 1000);
             camera.position.x = 30;
             camera.position.y = 50;
             camera.position.z = -30;
@@ -127,8 +158,6 @@
             scene.add(axes); //add to scene after creation
 
             // create a sphere
-            //scene.add(sphere);
-            //-----create 10 objects (sphere/cube) of randomely generated positions
             for (var i = 0; i < 10; i++) {
                 var r = 0.1 + Math.random() * 2;
                 var px = -10 + Math.random() * 20;
@@ -139,36 +168,59 @@
                 var sy = .5 + Math.random() * 3.5;
                 var sz = .5 + Math.random() * 3.5;
                 var sphere = createSphere(r, 15, 15, 0xFF0000, false, px, py, pz, sx, sy, sz);
-                scene.add(sphere);
+                //scene.add(sphere);
 
             }
 
             // add the cube to the scene
-            //var cube = createCube1();
-            //scene.add(cube);
-
-            for (var i = 0; i < 15; i++) {
-                var dx = 0.1 + Math.random() * 20;
-                var dy = 0.1 + Math.random() * 2;
-                var dz = 0.1 + Math.random() * 2;
+            for (var i = 0; i < 1500; i++) {
+                var dx = Math.random() * .1;
+                var dy = Math.random() * 5;
+                var dz = Math.random() * .2;
 
                 var px = -10 + Math.random() * 20;
-                var py = -5 + Math.random() * 10;
+                //var py=-5+Math.random()*10;
+                var py = dy / 2;
                 var pz = -10 + Math.random() * 20;
 
-                var sx = .5 + Math.random() * 3.5;
-                var sy = .5 + Math.random() * 3.5;
-                var sz = .5 + Math.random() * 3.5;
+                //var sx=.5+Math.random()*3.5;
+                //var sy=.5+Math.random()*3.5;
+                //var sz=.5+Math.random()*3.5;
 
-                var rx = Math.random() * Deg2Rad(45);
-                var ry = Math.random() * Deg2Rad(45);
-                var rz = Math.random() * Deg2Rad(45);
+                //var rx=Math.random()*Deg2Rad(45);
+                //var ry=Math.random()*Deg2Rad(45);
+                //var rz=Math.random()*Deg2Rad(45);
 
 
-                var cube = createCube(dx, dy, dz, 0x0000FF, false, px, py, pz, sx, sy, sz, rx, ry, rz);
+                //var cube=createCube(dx,dy,dz,0x0000FF,false,px,py,pz,sx,sy,sz,rx,ry,rz);
+                var cube = createCubeMLM(dx, dy, dz, 0x8888FF, false, px, py, pz);
                 scene.add(cube);
 
             }
+
+            //add a plane
+            //THREE.PlaneGeometry = function(width, height, widthSegments, heightSegments) {
+            var planeGeometry = new THREE.PlaneGeometry(20, 20, 2, 2);
+            //var planeMaterial=new THREE.MeshBasicMaterial({color:0xFF0000,wireframe:true});
+            //var planeMaterial=new THREE.MeshBasicMaterial({color:0xEEEEEE});
+            var planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0xEEEEEE
+            });
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.position.x = 0;
+            plane.position.y = 0;
+            plane.position.z = 0;
+            plane.scale.x = 2;
+            plane.scale.y = 2;
+
+            plane.rotation.x = -Deg2Rad(90);
+            plane.position.x += 10;
+            plane.position.z += 10;
+            scene.add(plane);
+            //Add Light
+            spotLight = new THREE.SpotLight(0xFFFFFF);
+            spotLight.position.y = 40;
+            scene.add(spotLight);
 
 
             //renderer
@@ -179,7 +231,7 @@
 
             //render all this
             document.getElementById("my-webgl-output").appendChild(renderer.domElement);
-            renderer.render(scene, camera);
+            renderScene();
 
         }
         window.onload = init(); //onload (html), load/render scene from init function onto the webpage
