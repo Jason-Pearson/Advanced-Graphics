@@ -57,6 +57,9 @@
                 this.triangle_pz = 0;
                 this.triangle_sx = 1;
                 this.triangle_sz = 1;
+                //Feb 22 - tetrahedron control(s)
+                this.tetrahedronVisible = true;
+                this.buildingsVisible = true; //requires the name property
             } { // dat.GUI instatiation + wiring up of dat.GUI controls
                 // Feb05 - Using dat.GUI - Step 3. Instantiate dat.GUI
                 gui = new dat.GUI();
@@ -82,9 +85,24 @@
                     triangleMesh.position.z = pz;
                 });
 
+                //Feb22
+                var tetrahedronFolder = gui.addFolder("Tetrahedron Controls");
+                tetrahedronFolder.add(controls, 'tetrahedronVisible').onChange((visible) => {
+                    tetrahedronMesh.visible = visible;
+                });
 
+                //buildings visible
+                gui.add(controls, 'buildingsVisible').onChange((visible) => {
+                    // buildings.visible = visible; 
+                    scene.traverse((object) => {
+                        if (object.name.startsWith("Building")) {
+                            object.visible = visible;
+                        }
+                    })
+                });
+            }
 
-            } { //scene + camera+ renderer+axishelper
+            { //scene + camera+ renderer+axishelper
                 //scene
                 scene = new THREE.Scene();
                 //camera
@@ -344,6 +362,7 @@
                     var pz = -10 + Math.random() * 20;
 
                     var cube = createCubeMLM(dx, dy, dz, 0x8888FF, false, px, py, pz);
+                    cube.name = "Building" + i;
                     scene.add(cube);
                 }
             }
@@ -374,6 +393,10 @@
 
 
                 // scene.rotation.set(0, t , 0);
+                //
+                if (controls.tetrahedronVisible) {
+                    tetrahedronMesh.rotation.set(0, t, 0);
+                }
 
                 stats.update();
                 requestAnimationFrame(renderScene);
