@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <title> Ch01 - 01 - My 3JS Template </title>
+    <script src="../../libs/three.js">
+    </script>
+    <script src="../../libs/stats.js">
+    </script>
+    <script src="../../libs/dat.GUI.js">
+    </script>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to
+             use the complete page */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="my-webgl-output">
+    </div>
+    <div id="my-stats-output">
+    </div>
+
+    <script>
+        function Deg2Rad(angle_in_deg) {
+            return angle_in_deg / 180 * Math.PI;
+        }
+
+        function initStats() {
+            var stats = new Stats();
+            stats.setMode(0); // 0 => fps, 1=> ms / frame
+            document.getElementById("my-stats-output").appendChild(stats.domElement);
+            return stats;
+        }
+        var scene, camera, renderer, stats, spotLight;
+        var frameCounter = 0;
+        var controls, gui;
+        var red_cube;
+        var ambientLight, pointLight, directionalLight;
+
+        function init() {
+
+        }
+        window.onload = init();
+    </script>
+</body>
+
+</html>
