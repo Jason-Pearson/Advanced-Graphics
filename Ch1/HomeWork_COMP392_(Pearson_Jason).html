@@ -38,68 +38,71 @@
                 var plane;
                 //Feb.08 - declare the new variable(s) that you will need today
                 var ambientLight, pointLight, directionalLight;
-
+                //let hex: number = 0xFFFF00;
             }
             stats = initStats();
             controls = new function() { //dat.GUI controls
                 // Feb05 - Using dat.GUI - Step 2. Specify controls
                 this.rotationSpeed = 0.01;
-                this.spotLightHeight = 40;
-                //Feb05 - exercise
-                this.dx = .1;
-                this.dy = 5;
-                this.dz = .2;
-                this.numberOfBuildings = 150;
+                this.spotLightHeight = 30;
+                //this.numberOfBuildings = 150;
                 //Feb.08 - new controls for the additional light types
                 this.ambientLightColor = "#0c0c0c";
                 //Feb.15 - new controls for the triangle (custom geometry)
-                this.triangle_px = 0;
-                this.triangle_pz = 0;
-                this.triangle_sx = 1;
-                this.triangle_sz = 1;
+                this.tetraPX = 0;
+                this.tetraPY = 0;
+                this.tetraPZ = 0;
+                this.tetraSX = 15;
+                this.tetraSY = 15;
+                this.tetraSZ = 15;
+                this.tetraRX = 0;
+                this.tetraRY = 0;
+                this.tetraRZ = 0;
+                this.tetraColor = 0x2194ce;
+                this.tetraEmissive = 0x0;
+                this.tetraOpacity = 1.0;
+                //this.tetraLightMap_Intensity = 1;
+
                 //Feb 22 - tetrahedron control(s)
                 this.tetrahedronVisible = true;
-                this.buildingsVisible = true; //requires the name property
-            } { // dat.GUI instatiation + wiring up of dat.GUI controls
+                this.tetrahedronWireframe = false;
+                this.tetrahedronTransparent = true;
+            }; { // dat.GUI instatiation + wiring up of dat.GUI controls
                 // Feb05 - Using dat.GUI - Step 3. Instantiate dat.GUI
                 gui = new dat.GUI();
                 // Feb05 - Using dat.GUI - Step 3'. Connect gui with controls
                 gui.add(controls, 'rotationSpeed', 0, 0.5);
                 gui.add(controls, 'spotLightHeight', 0, 100);
-                //Feb05 - exercise
-                gui.add(controls, 'dx', 0, 5);
-                gui.add(controls, 'dy', 0, 15);
-                gui.add(controls, 'dz', 0, 5);
-                gui.add(controls, 'numberOfBuildings', 0, 2000);
-                //Feb.08 - Use the new control(s)
+
                 //gui.add(controls,'ambientLightColor'); //first try
                 gui.addColor(controls, 'ambientLightColor').onChange((c) => {
                     ambientLight.color = new THREE.Color(c);
-                }); //second try with addColor
+                });
+                //second try with addColor
                 //Feb.15 - Use folder for organizing better
-                var triangleFolder = gui.addFolder("Triangle Controls");
-                triangleFolder.add(controls, 'triangle_px', -10, 10).onChange((px) => {
-                    triangleMesh.position.x = px;
-                });
-                triangleFolder.add(controls, 'triangle_pz', -10, 10).onChange((pz) => {
-                    triangleMesh.position.z = pz;
-                });
-
-                //Feb22
-                var tetrahedronFolder = gui.addFolder("Tetrahedron Controls");
-                tetrahedronFolder.add(controls, 'tetrahedronVisible').onChange((visible) => {
+                var tetraControls = gui.addFolder("Tetrahedron Controls");
+                tetraControls.add(controls, 'tetraPX', -10, 10)
+                tetraControls.add(controls, 'tetraPY', -10, 10)
+                tetraControls.add(controls, 'tetraPZ', -10, 10)
+                tetraControls.add(controls, 'tetraSX', 5, 20)
+                tetraControls.add(controls, 'tetraSY', 5, 20)
+                tetraControls.add(controls, 'tetraSZ', 5, 20)
+                tetraControls.add(controls, 'tetraRX', -10, 10)
+                    //tetraControls.add(controls, 'tetraRY', -10, 10)
+                tetraControls.add(controls, 'tetraRZ', -10, 10)
+                tetraControls.addColor(controls, 'tetraColor')
+                tetraControls.add(controls, 'tetraOpacity', 0, 1)
+                tetraControls.addColor(controls, 'tetraEmissive')
+                tetraControls.add(controls, 'tetrahedronVisible').onChange((visible) => {
                     tetrahedronMesh.visible = visible;
                 });
-
-                //buildings visible
-                gui.add(controls, 'buildingsVisible').onChange((visible) => {
-                    // buildings.visible = visible; 
-                    scene.traverse((object) => {
-                        if (object.name.startsWith("Building")) {
-                            object.visible = visible;
-                        }
-                    })
+                tetraControls.add(controls, 'tetrahedronWireframe').onChange((visible) => {
+                    tetrahedronMesh.material.wireframe = visible;
                 });
+                tetraControls.add(controls, 'tetrahedronTransparent').onChange((visible) => {
+                    tetrahedronMesh.material.transparent = visible;
+                });
+
             }
 
             { //scene + camera+ renderer+axishelper
@@ -188,7 +191,7 @@
                     var spotLight2 = new THREE.SpotLight(0xFFFFFF);
                     spotLight2.position.x = -10;
                     spotLight2.position.z = -10;
-                    spotLight2.position.y = 30; //Feb05 - use controls
+                    spotLight2.position.y = controls.spotLightHeight; //Feb05 - use controls
                     spotLight2.castShadow = true;
                     spotLight2.lookAt(red_cube);
                     scene.add(spotLight2);
@@ -210,9 +213,7 @@
                     var triangleMat = new THREE.MeshLambertMaterial({
                         color: 0xFFFF00
                     });
-
                     var triangleMesh = new THREE.Mesh(triangleGeo, triangleMat);
-
                     //triangleMesh.position=new THREE.Vector3(10,0,10);
                     //triangleMesh.scale=new THREE.Vector3(3,1,3);
 
@@ -239,13 +240,17 @@
                 tetrahedronGeo.vertices = vertices2;
                 tetrahedronGeo.faces = faces2;
                 tetrahedronGeo.computeFaceNormals();
-
                 var tetrahedronMat = new THREE.MeshLambertMaterial({
-                    color: 0xFFFF00
+                    color: controls.tetraColor,
+                    emissive: controls.tetraEmissive
+
                 });
                 var tetrahedronMesh = new THREE.Mesh(tetrahedronGeo, tetrahedronMat);
-                //triangleMesh.position=new THREE.Vector3(10,0,10);
-                tetrahedronMesh.scale.set(15, 15, 15);
+
+                tetrahedronMesh.scale.x = 15;
+                tetrahedronMesh.scale.y = 15;
+                tetrahedronMesh.scale.z = 15;
+
                 scene.add(tetrahedronMesh);
             } { //render all this world (scene)
                 document.getElementById("my-webgl-output").appendChild(renderer.domElement);
@@ -380,23 +385,55 @@
                 scene.add(red_cube);
 
 
-                var x = spotLight.position.x;
-                var y = controls.spotLightHeight; //Feb. 5 - use controls.spotLightHeight
-                var z = spotLight.position.z;
+                //var x = spotLight.position.x;
+                //spotlight.position.y = controls.spotLightHeight;
+                //spotLight.castShadow = true;
+                //spotLight.lookAt(red_cube);
+
+                //scene.add(spotLight); //Feb. 5 - use controls.spotLightHeight
+                //var z = spotLight.position.z;
                 //spotLight.position.set(x*Math.sin(t)-10,y,z*Math.cos(t)-10)
                 //spotLight.lookAt(red_cube);
 
                 //Feb.08
                 //console.log(controls.ambientLightColor);
                 //ambientLight.color=new THREE.Color(controls.ambientLightColor);
-
-
-
+                /*var material = new THREE.MeshLambertMaterial({
+                    color: control.tetraColor,
+                    ambient: 0x121212
+                });*/
                 // scene.rotation.set(0, t , 0);
                 //
                 if (controls.tetrahedronVisible) {
                     tetrahedronMesh.rotation.set(0, t, 0);
                 }
+                if (controls.tetrahedronWireframe) {
+                    tetrahedronMesh.material.wireframe = controls.tetrahedronWireframe;
+                }
+                if (controls.tetrahedronTransparent) {
+                    tetrahedronMesh.material.transparent = controls.tetrahedronTransparent;
+                }
+                tetrahedronMesh.position.x = controls.tetraPX;
+                tetrahedronMesh.position.y = controls.tetraPY;
+                tetrahedronMesh.position.z = controls.tetraPZ;
+
+                tetrahedronMesh.rotation.x = controls.tetraRX;
+                //tetrahedronMesh.rotation.y = controls.tetraRY;
+                tetrahedronMesh.rotation.z = controls.tetraRZ;
+
+                tetrahedronMesh.scale.x = controls.tetraSX;
+                tetrahedronMesh.scale.y = controls.tetraSY;
+                tetrahedronMesh.scale.z = controls.tetraSZ;
+
+                tetrahedronMesh.material.color.setHex(controls.tetraColor);
+                tetrahedronMesh.material.emissive.setHex(controls.tetraEmissive);
+
+                tetrahedronMesh.material.opacity = controls.tetraOpacity;
+
+                spotLight2.position.y = controls.spotLightHeight; //Feb05 - use controls
+
+                //tetrahedronMesh.MeshLambertMaterial.emissiveIntensity(controls.tetraOpacity);
+                //tetrahedronMesh.MeshLambertMaterial.lightMapIntensity = controls.tetraLightMap_Intensity;
 
                 stats.update();
                 requestAnimationFrame(renderScene);
