@@ -44,7 +44,7 @@
             controls = new function() { //dat.GUI controls
                 // Feb05 - Using dat.GUI - Step 2. Specify controls
                 this.rotationSpeed = 0.01;
-                this.spotLightHeight = 30;
+                this.spotLightHeight = 100;
                 //this.numberOfBuildings = 150;
                 //Feb.08 - new controls for the additional light types
                 this.ambientLightColor = "#0c0c0c";
@@ -58,7 +58,7 @@
                 this.tetraRX = 0;
                 this.tetraRY = 0;
                 this.tetraRZ = 0;
-                this.tetraColor = 0x2194ce;
+                this.tetraColor = 0x00a9ff;
                 this.tetraEmissive = 0x0;
                 this.tetraOpacity = 1.0;
                 //this.tetraLightMap_Intensity = 1;
@@ -67,6 +67,7 @@
                 this.tetrahedronVisible = true;
                 this.tetrahedronWireframe = false;
                 this.tetrahedronTransparent = true;
+                // this.tetraRandomColor = false;
             }; { // dat.GUI instatiation + wiring up of dat.GUI controls
                 // Feb05 - Using dat.GUI - Step 3. Instantiate dat.GUI
                 gui = new dat.GUI();
@@ -102,6 +103,11 @@
                 tetraControls.add(controls, 'tetrahedronTransparent').onChange((visible) => {
                     tetrahedronMesh.material.transparent = visible;
                 });
+                /*tetraControls.add(controls, 'tetraRandomColor').onChange((visible) => {
+                    if (visible) {
+                        randColor();
+                    }
+                });*/
 
             }
 
@@ -372,6 +378,20 @@
                 }
             }
 
+
+            /* function randColor() {
+                 var color = 0x000000;
+
+                 // Update the color to set
+                 if (color < 0xdddddd) {
+                     color += 0x0000ff;
+                 }
+                 // Update the cube color
+
+                 tetrahedronMesh.material.color.setHex(color);
+                 scene.add(tetrahedronMesh);
+             }*/
+
             function renderScene() {
 
                 frameCounter += 1;
@@ -413,6 +433,10 @@
                 if (controls.tetrahedronTransparent) {
                     tetrahedronMesh.material.transparent = controls.tetrahedronTransparent;
                 }
+                /*if (controls.tetraRandomColor) {
+                    randColor();
+                }*/
+
                 tetrahedronMesh.position.x = controls.tetraPX;
                 tetrahedronMesh.position.y = controls.tetraPY;
                 tetrahedronMesh.position.z = controls.tetraPZ;
@@ -431,6 +455,7 @@
                 tetrahedronMesh.material.opacity = controls.tetraOpacity;
 
                 spotLight2.position.y = controls.spotLightHeight; //Feb05 - use controls
+
 
                 //tetrahedronMesh.MeshLambertMaterial.emissiveIntensity(controls.tetraOpacity);
                 //tetrahedronMesh.MeshLambertMaterial.lightMapIntensity = controls.tetraLightMap_Intensity;
